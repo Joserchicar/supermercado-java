@@ -17,48 +17,55 @@ import com.ipartek.formacion.modelo.pojo.Producto;
 @WebServlet("/producto-eliminar")
 public class ProductoEliminarController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-   
+
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * Se realiza una request para detectar la id del producto a eliminar-
+	 * 
+	 * @param id int id del producto
+	 * 
+	 *           Elimina el producto de dicha id.
+	 * 
+	 *           Realiza una segunda Request, redireccionandolo a
+	 *           productoController. "/producto"
+	 * 
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
 		// <td><a href="producto-eliminar?id=${p.id}">ELIMINAR</a></td>
 		// recoger parametro
 		String parametroId = request.getParameter("id");
 		int id = Integer.parseInt(parametroId);
-		
+
 		// llamr modelo
 		ProductoDAOImpl dao = ProductoDAOImpl.getInstance();
-		String mensaje  = "";
+		String mensaje = "";
 		Producto p = new Producto();
-		
+
 		try {
 			p = dao.delete(id);
 			mensaje = "Eliminado " + p.getNombre();
-			
+
 		} catch (Exception e) {
 			mensaje = "Error " + e.getMessage();
 			e.printStackTrace();
-		}finally {
-		
+		} finally {
+
 			// guardar datos en session para el mensaje de la vista
-			request.getSession().setAttribute("alerta", new Alerta("success", mensaje ) );
-			
+			request.getSession().setAttribute("alerta", new Alerta("success", mensaje));
+
 			// pedimos al cliente que realize una segunda REQUEST
 			response.sendRedirect("productos");
 		}
-		
-	
-	
-	
+
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		doGet(request, response);
 	}
 

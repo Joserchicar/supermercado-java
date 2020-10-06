@@ -14,37 +14,42 @@ import com.ipartek.formacion.modelo.pojo.Producto;
 
 /**
  * Servlet implementation class ProductosController
+ * 
+ * crea una lista de productos
  */
 @WebServlet("/productos")
 public class ProductosController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-   
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		doPost(request, response);
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 * 
+	 *      Consigue los productos de la base de datos y lo envia a la vista en
+	 *      forma de {@code ArrayList<Producto> productos}
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		//llamar a la base datos para conseguir los productos
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		// llamar a la base datos para conseguir los productos
 		ProductoDAOImpl dao = ProductoDAOImpl.getInstance();
 		ArrayList<Producto> productos = dao.getAll();
-		
-		
+
 		// datos para enviar a la vista
 		request.setAttribute("productos", productos);
-		
-		
+
 		// ir a la nueva vista o jsp
 		request.getRequestDispatcher("views/productos/index.jsp").forward(request, response);
-		
+
 	}
 
 }
