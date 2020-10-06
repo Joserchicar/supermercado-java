@@ -1,6 +1,7 @@
 package com.ipartek.formacion.controller.frontoffice;
 
 import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -17,64 +18,72 @@ import com.ipartek.formacion.modelo.pojo.Producto;
 import com.ipartek.formacion.modelo.pojo.Usuario;
 
 /**
- * Servlet implementation class EliminarFrontOfficeController
+ * elimina un producto de un usuario si el usuario tiene ese privilegio
  */
 @WebServlet("/views/frontoffice/eliminar")
 public class EliminarFrontOfficeController extends HttpServlet {
-	
+
 	private static final long serialVersionUID = 1L;
 	private final static Logger LOG = Logger.getLogger(EliminarFrontOfficeController.class);
 	private final static ProductoDAOImpl daoProducto = ProductoDAOImpl.getInstance();
-       
-    
+
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doProcess(request, response);
-	}
-	
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		doProcess(request, response);
 	}
 
-	
-	private void doProcess(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		doProcess(request, response);
+	}
+
+	/**
+	 * 
+	 * @param request  id del producto, session del usuario logeado. Usuario_login
+	 * @param response id del producto, session del usuario logeado. Usuario_login
+	 * @throws ServletException la respuesta no es valida
+	 * @throws IOException      los datos de entrada/salida no son correctos
+	 */
+
+	private void doProcess(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
 		String paramId = request.getParameter("id");
-		LOG.trace("Entramos para eliminar producto " + paramId);	
+		LOG.trace("Entramos para eliminar producto " + paramId);
 		HttpSession session = request.getSession();
 		Alerta alerta = new Alerta();
 		Usuario usuario = new Usuario();
-		
+
 		try {
-			
-			usuario = (Usuario)session.getAttribute("usuario_login");
+
+			usuario = (Usuario) session.getAttribute("usuario_login");
 			int idUsuario = usuario.getId();
 			int idProducto = Integer.parseInt(paramId);
-			
-			Producto p = daoProducto.delete(idProducto, idUsuario);			
+
+			Producto p = daoProducto.delete(idProducto, idUsuario);
 			alerta = new Alerta("success", "Producto " + p.getNombre() + " Elimado");
-			
-		}catch (SeguridadException e) {
-			LOG.error(" Intentan saltarse la seguridad " + usuario );
-			
-		}catch (Exception e) {
+
+		} catch (SeguridadException e) {
+			LOG.error(" Intentan saltarse la seguridad " + usuario);
+
+		} catch (Exception e) {
 			LOG.error(e);
 			alerta = new Alerta("danger", "Error inexsperado");
-			
-		}finally {
-		
-			session.setAttribute("alerta", alerta);		
+
+		} finally {
+
+			session.setAttribute("alerta", alerta);
 			request.getRequestDispatcher("/views/frontoffice/inicio").forward(request, response);
 		}
-		
-		
-	}
 
-	
+	}
 
 }

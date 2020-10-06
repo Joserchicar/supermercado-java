@@ -22,107 +22,107 @@ import com.ipartek.formacion.modelo.pojo.Producto;
 import com.ipartek.formacion.modelo.pojo.Usuario;
 
 /**
- * Servlet implementation class CrawlerController
+ * Servlet implementation class CrawlerController Realiza las acciones de
+ * recogida e insercion de nuevos productos desde otras webs.
  */
 @WebServlet("/views/backoffice/crawler")
 public class CrawlerController extends HttpServlet {
-	
+
 	private static final long serialVersionUID = 1L;
 	private final static Logger LOG = Logger.getLogger(CrawlerController.class);
 	private final static CategoriaDAOImpl daoCategoria = CategoriaDAOImpl.getInstance();
 	private final static ProductoDAOImpl daoProducto = ProductoDAOImpl.getInstance();
-       
-    
+
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * Inicia el proceso, busca todas la scategorias y las envia a crawlwer.jsp.
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		LOG.trace("inicio");
-		request.setAttribute("categorias", daoCategoria.getAll() );
+		request.setAttribute("categorias", daoCategoria.getAll());
 		request.getRequestDispatcher("crawler.jsp").forward(request, response);
-		
+
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * Se conecta L url y obtiene el producto , insertandolo en la BBDD
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
 		int cont = 0;
 		int contError = 0;
 		Usuario usuario = null;
-				
+
 		String cat = request.getParameter("cat");
 		String url = request.getParameter("url");
-		LOG.trace( String.format("parametros url %s categoriaId %s", url, cat));
-		
+		LOG.trace(String.format("parametros url %s categoriaId %s", url, cat));
+
 		try {
-			
+
 			int idCategoria = Integer.parseInt(cat);
-			usuario = (Usuario)request.getSession().getAttribute("usuario_login");
-			
-			final String USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0"; 
-			Document doc = Jsoup.connect(url).userAgent(USER_AGENT).get();			
+			usuario = (Usuario) request.getSession().getAttribute("usuario_login");
+
+			final String USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0";
+			Document doc = Jsoup.connect(url).userAgent(USER_AGENT).get();
 			Elements eNombres = doc.select("a.product");
 			Producto p = null;
 			Categoria c = null;
 			Usuario u = null;
 			for (Element element : eNombres) {
-				
+
 				try {
-					String nombre = element.select("span.desc-height strong").first().text();				
-					
-					String precioInicio = element.select("span.price-height span b").last().text().replace("*", "");  // 9.88*
+					String nombre = element.select("span.desc-height strong").first().text();
+
+					String precioInicio = element.select("span.price-height span b").last().text().replace("*", ""); // 9.88*
 					float precio = Float.parseFloat(precioInicio);
-					
+
 					// Imagen
 					String imagenUrl = element.select("img").attr("src");
 					String[] imagenSplit = imagenUrl.split("/");
-					String imagenNombre = imagenSplit[ (imagenSplit.length -1 )];
-					
+					String imagenNombre = imagenSplit[(imagenSplit.length - 1)];
+
 					String urlImagen = "https://www.lidl.es" + imagenUrl;
-					String pathImagen = "/home/javaee/eclipse-workspace/supermercado-java/src/main/webapp/imagenes/" + imagenNombre;
-					Utilidades.downloadImage( urlImagen, pathImagen);
-					
-					
+					String pathImagen = "/home/javaee/eclipse-workspace/supermercado-java/src/main/webapp/imagenes/"
+							+ imagenNombre;
+					Utilidades.downloadImage(urlImagen, pathImagen);
+
 					// guardar pojo
 					p = new Producto();
 					p.setNombre(nombre);
 					p.setImagen(imagenNombre);
 					p.setPrecio(precio);
-					
+
 					c = new Categoria();
 					c.setId(idCategoria);
 					p.setCategoria(c);
-					
+
 					u = new Usuario();
-					u.setId( usuario.getId() );
+					u.setId(usuario.getId());
 					p.setUsuario(u);
-					
+
 					daoProducto.insert(p);
-					
+
 					LOG.debug("Insertado Producto " + p);
 					cont++;
-				}catch (Exception e) {
+				} catch (Exception e) {
 					LOG.error(e.getMessage());
 					contError++;
-				}	
-				
+				}
+
 			}
-			
-			
-		}catch (Exception e) {
+
+		} catch (Exception e) {
 			e.printStackTrace();
 			LOG.error(e);
-			
-		}finally {
+
+		} finally {
 			request.setAttribute("contError", contError);
-			request.setAttribute("cont", cont );
-			request.setAttribute("categorias", daoCategoria.getAll() );
+			request.setAttribute("cont", cont);
+			request.setAttribute("categorias", daoCategoria.getAll());
 			request.getRequestDispatcher("crawler.jsp").forward(request, response);
 		}
-		
-		
+
 	}
 
 }
