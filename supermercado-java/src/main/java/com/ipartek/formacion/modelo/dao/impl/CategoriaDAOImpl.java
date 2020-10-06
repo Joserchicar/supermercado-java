@@ -121,6 +121,11 @@ public class CategoriaDAOImpl implements CategoriaDAO {
 		return new ArrayList<Categoria>(registros.values());
 	}
 
+	/**
+	 * lista las catefgorias ordenadas por el id
+	 * 
+	 * @return registro;
+	 */
 	@Override
 	public Categoria getById(int id) throws Exception {
 

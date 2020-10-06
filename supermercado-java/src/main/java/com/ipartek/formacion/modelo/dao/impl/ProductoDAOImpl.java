@@ -37,34 +37,36 @@ public class ProductoDAOImpl implements ProductoDAO {
 
 	private final String SELECT_CAMPOS = "SELECT u.id 'usuario_id', u.nombre 'usuario_nombre', p.id  'producto_id', p.nombre 'producto_nombre', precio, imagen, c.id 'categoria_id', c.nombre 'categoria_nombre' ";
 	private final String FROM_INNER_JOIN = " FROM producto p , categoria c, usuario u WHERE p.id_categoria  = c.id AND p.id_usuario = u.id  ";
-	
+
 	// excuteQuery => ResultSet
-	private final String SQL_GET_ALL = SELECT_CAMPOS + FROM_INNER_JOIN + " AND fecha_validado IS NOT NULL " + " ORDER BY p.id DESC LIMIT 500; ";
+	private final String SQL_GET_ALL = SELECT_CAMPOS + FROM_INNER_JOIN + " AND fecha_validado IS NOT NULL "
+			+ " ORDER BY p.id DESC LIMIT 500; ";
 
-	private final String SQL_GET_LAST = SELECT_CAMPOS + FROM_INNER_JOIN + " AND fecha_validado IS NOT NULL " + " ORDER BY p.id DESC LIMIT ? ; ";
+	private final String SQL_GET_LAST = SELECT_CAMPOS + FROM_INNER_JOIN + " AND fecha_validado IS NOT NULL "
+			+ " ORDER BY p.id DESC LIMIT ? ; ";
 
-	//private final String SQL_GET_BY_CATEGORIA = SELECT_CAMPOS + FROM_INNER_JOIN + "AND fecha_validado IS NOT NULL " + " AND c.id = ? " + // filtramos por el
-																									// id de la
-																									// categoria
-			//" ORDER BY p.id DESC LIMIT ? ; ";
+	// private final String SQL_GET_BY_CATEGORIA = SELECT_CAMPOS + FROM_INNER_JOIN +
+	// "AND fecha_validado IS NOT NULL " + " AND c.id = ? " + // filtramos por el
+	// id de la
+	// categoria
+	// " ORDER BY p.id DESC LIMIT ? ; ";
 
-	private final String PA_GET_BY_CATEGORIA= "{pa_productos_por_categoria(?,?) }";
-	
-	
+	private final String PA_GET_BY_CATEGORIA = "{pa_productos_por_categoria(?,?) }";
 
-	private final String SQL_GET_BY_USUARIO_PRODUCTO_VALIDADO = SELECT_CAMPOS + FROM_INNER_JOIN + " AND fecha_validado IS NOT NULL AND p.id_usuario = ? \n"
-			+ "ORDER BY p.id DESC LIMIT 500; ";
+	private final String SQL_GET_BY_USUARIO_PRODUCTO_VALIDADO = SELECT_CAMPOS + FROM_INNER_JOIN
+			+ " AND fecha_validado IS NOT NULL AND p.id_usuario = ? \n" + "ORDER BY p.id DESC LIMIT 500; ";
 
-	private final String SQL_GET_BY_USUARIO_PRODUCTO_SIN_VALIDAR = SELECT_CAMPOS + FROM_INNER_JOIN + " AND fecha_validado IS NULL AND p.id_usuario = ? \n"
-			+ "ORDER BY p.id DESC LIMIT 500; ";
+	private final String SQL_GET_BY_USUARIO_PRODUCTO_SIN_VALIDAR = SELECT_CAMPOS + FROM_INNER_JOIN
+			+ " AND fecha_validado IS NULL AND p.id_usuario = ? \n" + "ORDER BY p.id DESC LIMIT 500; ";
 
 	private final String SQL_GET_BY_ID = SELECT_CAMPOS + FROM_INNER_JOIN + " AND p.id = ? ; ";
 
-	private final String SQL_GET_BY_ID_AND_USER = SELECT_CAMPOS + FROM_INNER_JOIN + " AND p.id = ? AND p.id_usuario = ? ; ";
+	private final String SQL_GET_BY_ID_AND_USER = SELECT_CAMPOS + FROM_INNER_JOIN
+			+ " AND p.id = ? AND p.id_usuario = ? ; ";
 
-	//view
+	// view
 	private final String SQL_VIEW_RESUMEN_USUARIO = " SELECT id_usuario, total, aprobado, pendiente FROM v_usuario_productos WHERE id_usuario = ?; ";
-	
+
 	// excuteUpdate => int numero de filas afectadas
 	private final String SQL_INSERT = " INSERT INTO producto (nombre, imagen, precio , id_usuario, id_categoria ) VALUES ( ? , ?, ? , ?,  ? ) ; ";
 	private final String SQL_UPDATE = " UPDATE producto SET nombre = ?, imagen = ?, precio = ?, id_categoria = ? WHERE id = ?; ";
@@ -75,8 +77,8 @@ public class ProductoDAOImpl implements ProductoDAO {
 
 	@Override
 	public void validar(int id) {
-		
-		//TODO UPDATE producto SET fecha_validado = NOW() WHERE id = 15;
+
+		// TODO UPDATE producto SET fecha_validado = NOW() WHERE id = 15;
 	}
 
 	public ArrayList<Producto> getAllByNombre(String nombre) {
@@ -116,7 +118,7 @@ public class ProductoDAOImpl implements ProductoDAO {
 
 		try (Connection conexion = ConnectionManager.getConnection();
 				PreparedStatement pst = conexion.prepareStatement(sql);) {
-		
+
 			pst.setNull(1, java.sql.Types.NULL);
 			pst.setInt(1, idUsuario);
 
@@ -159,12 +161,12 @@ public class ProductoDAOImpl implements ProductoDAO {
 	public ArrayList<Producto> getAllByCategoria(int idCategoria, int numReg) {
 		ArrayList<Producto> registros = new ArrayList<Producto>();
 		try (Connection conexion = ConnectionManager.getConnection();
-				//PreparedStatement pst = conexion.prepareStatement(SQL_GET_BY_CATEGORIA);)
-				CallableStatement cs= conexion.prepareCall(PA_GET_BY_CATEGORIA);)
-				  
-				{
-					cs.setInt(1, idCategoria);
-					cs.setInt(2, numReg);
+				// PreparedStatement pst = conexion.prepareStatement(SQL_GET_BY_CATEGORIA);)
+				CallableStatement cs = conexion.prepareCall(PA_GET_BY_CATEGORIA);)
+
+		{
+			cs.setInt(1, idCategoria);
+			cs.setInt(2, numReg);
 			LOG.debug(cs);
 			try (ResultSet rs = cs.executeQuery()) {
 				while (rs.next()) {
@@ -253,7 +255,6 @@ public class ProductoDAOImpl implements ProductoDAO {
 	@Override
 	public Producto delete(int idProducto, int idUsuario) throws Exception, SeguridadException {
 
-		
 		Producto registro = checkSeguridad(idProducto, idUsuario);
 
 		try (Connection conexion = ConnectionManager.getConnection();
@@ -338,27 +339,26 @@ public class ProductoDAOImpl implements ProductoDAO {
 
 		return pojo;
 	}
-	
-	
+
 	@Override
 	public Producto updateByUser(Producto pojo) throws Exception, SeguridadException {
-		
+
 		try (Connection conexion = ConnectionManager.getConnection();
 				PreparedStatement pst = conexion.prepareStatement(SQL_UPDATE_BY_USER);
 
 		) {
 			int idProducto = pojo.getId();
 			int idUsuario = pojo.getUsuario().getId();
-			
-			checkSeguridad(idProducto, idUsuario); 
-			
+
+			checkSeguridad(idProducto, idUsuario);
+
 			pst.setString(1, pojo.getNombre());
 			pst.setString(2, pojo.getImagen());
 			pst.setFloat(3, pojo.getPrecio());
 			pst.setInt(4, pojo.getCategoria().getId());
 			pst.setInt(5, pojo.getId());
 			LOG.debug(pst);
-			
+
 			int affectedRows = pst.executeUpdate();
 			if (affectedRows != 1) {
 				throw new Exception("No se puede podificar el registro con id=" + pojo.getId());
@@ -368,8 +368,6 @@ public class ProductoDAOImpl implements ProductoDAO {
 
 		return pojo;
 	}
-	
-	
 
 	@Override
 	public ArrayList<Producto> getAllRangoPrecio(int precioMinimo, int precioMaximo) throws Exception {
@@ -415,14 +413,12 @@ public class ProductoDAOImpl implements ProductoDAO {
 		c.setId(rs.getInt("categoria_id"));
 		c.setNombre(rs.getString("categoria_nombre"));
 		p.setCategoria(c);
-		
+
 		u.setId(rs.getInt("usuario_id"));
 		u.setNombre(rs.getString("usuario_nombre"));
 		p.setUsuario(u);
-		
+
 		return p;
 	}
-
-	
 
 }
