@@ -15,9 +15,11 @@ public class Utilidades {
 
 	/**
 	 * Descarga una imagen desde internet
+	 * 
 	 * @param search url donde busca la imagen
-	 * @param path directorio donde se guarda, es necesario especificar tambien el nombre y estension de la imaegn
-	 * @throws IOException
+	 * @param path   directorio donde se guarda, es necesario especificar tambien el
+	 *               nombre y estension de la imaegn
+	 * @throws IOException Excepcion por datos de entrada o salida erroneos o nulos
 	 */
 	public static void downloadImage(String search, String path) throws IOException {
 
@@ -60,7 +62,7 @@ public class Utilidades {
 		// close resources
 		outputStream.close();
 		inputStream.close();
-		
+
 		LOG.debug("Imagen bajado con exito: " + path);
 
 	}

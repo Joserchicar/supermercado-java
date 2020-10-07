@@ -8,7 +8,7 @@ import com.ipartek.formacion.modelo.pojo.ResumenUsuario;
 
 /**
  * Hereda los metodos basicos de la interfaz CrudAble Ademas definie un nuevo:
- * ArrayList<Producto> getAllByNombre( String nombre )"
+ * {@code ArrayList<Producto> getAllByNombre( String nombre )}"
  * 
  * @author Joserra
  * @version 1.0
